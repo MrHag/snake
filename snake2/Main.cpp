@@ -315,62 +315,41 @@ void control(hero *hero)
 
 int main()
 {
-	//local("RUS");
-	srand(time(NULL));
-	setlocale(LC_ALL, "RUS");
-	SetConsoleCP(1251);
-	SetConsoleOutputCP(1251);
-	system("mode con cols=70 lines=35");
-start:
-	char** MymenuCache = new char*[2]{ 0 };
-	char* st = new char[5];
-    strcpy(st,"Старт");
-	char* ex = new char[5];
-	strcpy(ex, "Выйти");
-	
+		//local("RUS");
+		srand(time(NULL));
+		setlocale(LC_ALL, "RUS");
+		SetConsoleCP(1251);
+		SetConsoleOutputCP(1251);
+		system("mode con cols=70 lines=35");
+	start:
+		char** MymenuCache = new char*[2]{ 0 };
+		char st[5];
+		strcpy(st, "Старт");
+		char ex[5];
+		strcpy(ex, "Выйти");
 
-	str_to_866(st);
-	str_to_866(ex);
-	MymenuCache[0] = st;
-	MymenuCache[1] = ex;
 
-	menu<char *> Mymenu;
-	Mymenu.new_menu(MymenuCache, 2, false);
-	int a = Mymenu.active_menu();
-	if (a == 1)
-		exit(0);
-	work = true;
-	pause = false;
-	Mymenu.Delete();
-	delete[] MymenuCache;
-	delete st;
-	delete ex;
+		str_to_866(st);
+		str_to_866(ex);
+		MymenuCache[0] = st;
+		MymenuCache[1] = ex;
 
-	if (true)
-	{
-		for (int i = 0; i < Map_y; i++)
+		menu<char *> Mymenu;
+		Mymenu.new_menu(MymenuCache, 2, false);
+		int a = Mymenu.active_menu();
+		if (a == 1)
+			exit(0);
+		work = true;
+		pause = false;
+		Mymenu.Delete();
+		delete[] MymenuCache;
+
+		if (true)
 		{
-			buf[i] = new char[Map_x];
-		}
-		for (int i = 0; i < Map_y; i++)
-		{
-			for (int j = 0; j < Map_x; j++)
+			for (int i = 0; i < Map_y; i++)
 			{
-				buf[i][j] = ' ';
+				buf[i] = new char[Map_x];
 			}
-		}
-		poin = new point();
-	hero Sneak(25, 25);
-	thread contr(control, &Sneak);
-	contr.detach();
-	while (work)
-	{
-		
-		Sleep(100);
-		while (work && !pause)
-		{
-			Sleep(100);
-			Sneak.change_pos();
 			for (int i = 0; i < Map_y; i++)
 			{
 				for (int j = 0; j < Map_x; j++)
@@ -378,31 +357,82 @@ start:
 					buf[i][j] = ' ';
 				}
 			}
-			buf[poin->Y][poin->X] = (char)15;
-			for (int i = 0; i < Sneak.SIZE; i++)
+			poin = new point();
+			hero Sneak(25, 25);
+			thread contr(control, &Sneak);
+			contr.detach();
+			while (work)
 			{
-				char a = (char)254;
-				/*if (Sneak.g[i].arr[2] == 0 || Sneak.g[i].arr[2] == 2)
+
+				Sleep(100);
+				while (work && !pause)
 				{
-					a = (char)254;
+					Sleep(100);
+					Sneak.change_pos();
+					for (int i = 0; i < Map_y; i++)
+					{
+						for (int j = 0; j < Map_x; j++)
+						{
+							buf[i][j] = ' ';
+						}
+					}
+					buf[poin->Y][poin->X] = (char)15;
+					for (int i = 0; i < Sneak.SIZE; i++)
+					{
+						char a = (char)254;
+						/*if (Sneak.g[i].arr[2] == 0 || Sneak.g[i].arr[2] == 2)
+						{
+							a = (char)254;
+						}
+						else
+						{
+							a = (char)219;
+						}*/
+						buf[Sneak.g[i][1]][Sneak.g[i][0]] = a;
+					}
+					if (true)
+					{
+						char a;
+						switch (Sneak.direction)
+						{
+						case 0:a = (char)17; break;
+						case 1:a = (char)30; break;
+						case 2:a = (char)16; break;
+						case 3:a = (char)31; break;
+						}
+						buf[Sneak.Y][Sneak.X] = a;
+					}
+
+
+					char*mu = new char[Map_y * Map_x];
+					for (int i = 0, s = 0; i < Map_y; i++)
+					{
+						for (int j = 0; j < Map_x; j++)
+						{
+
+							mu[s] = buf[i][j];
+							s++;
+						}
+					}
+					Cursor::SetCursorPos(0, 0);
+					prnt(mu, Map_y * Map_x);
+					Cursor::SetCursorPos(Map_x - 1, Map_y - 1);
+					delete[] mu;
+
 				}
-				else
-				{
-					a = (char)219;
-				}*/
-				buf[Sneak.g[i][1]][Sneak.g[i][0]] = a;
+				
 			}
-			if (true)
+
+
+			char *v;
+			if (lose)
+				v = (char*)"WASTED";
+			else
+				v = (char*)"WIN";
+
+			for (int i = 0; i < size_char_string(v)-1; i++)
 			{
-				char a;
-				switch (Sneak.direction)
-				{
-				case 0:a = (char)17; break;
-				case 1:a = (char)30; break;
-				case 2:a = (char)16; break;
-				case 3:a = (char)31; break;
-				}
-				buf[Sneak.Y][Sneak.X] = a;
+				buf[Map_y / 2][(Map_x / 2 - size_char_string(v)) + i + 2] = v[i];
 			}
 
 
@@ -420,68 +450,22 @@ start:
 			prnt(mu, Map_y * Map_x);
 			Cursor::SetCursorPos(Map_x - 1, Map_y - 1);
 			delete[] mu;
+			for (int i = 0; i < Sneak.SIZE; i++)
+			{
 
+				delete[] Sneak.g[i];
+			}
+			delete[] Sneak.g;
+			_getch();
+			_getch();
+			_getch();
 		}
-		if (work)
-		{
-			char **MymenuCache = new char*[2]{ 0 };
-			MymenuCache[0]=(char*)"Продолжить";
-			MymenuCache[1]=(char*)"Выйти";
-			menu<char *> Mymenu;
-			Mymenu.new_menu(MymenuCache, 2, true);
-			int a = Mymenu.active_menu();
-			if (a == 1)
-				exit(0);
-			if (a == -1 || a == 0)
-				pause = false;
-			cls(GetStdHandle(STD_OUTPUT_HANDLE));
-			Mymenu.Delete();
-			delete[] MymenuCache[0];
-			delete[] MymenuCache[1];
-			delete[] MymenuCache;
-		}
-	}
-	char *v;
-	if (lose)
-		v = (char*)"WASTED";
-	else
-		v = (char*)"WIN";
+		goto start;
+		/*delete[] MymenuCache[0];
+		delete[] MymenuCache[1];
+		delete[] MymenuCache;*/
 
-	for (int i = 0; i < size_char_string(v); i++)
-	{
-		buf[Map_y/2][(Map_x/2 - size_char_string(v)) + i+2] = v[i];
-	}
-
-
-	char*mu = new char[Map_y * Map_x];
-	for (int i = 0, s = 0; i < Map_y; i++)
-	{
-		for (int j = 0; j < Map_x; j++)
-		{
-
-			mu[s] = buf[i][j];
-			s++;
-		}
-	}
-	Cursor::SetCursorPos(0, 0);
-	prnt(mu, Map_y * Map_x);
-	Cursor::SetCursorPos(Map_x - 1, Map_y - 1);
-	delete[] mu;
-	for (int i = 0; i < Sneak.SIZE; i++)
-	{
-		
-		delete [] Sneak.g[i];
-	}
-	delete[] Sneak.g;
-	_getch();
-	_getch();
-	_getch();
-}
-			goto start;
-	/*delete[] MymenuCache[0];
-	delete[] MymenuCache[1];
-	delete[] MymenuCache;*/
-
-	return 0;
+		return 0;
+	
 }
 
